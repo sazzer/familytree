@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -28,11 +29,12 @@ open class CoreContext {
      */
     @Bean
     open fun objectMapper() : ObjectMapper {
-        val objectMapper = ObjectMapper();
-        objectMapper.registerModule(JavaTimeModule());
-        objectMapper.registerModule(Jdk8Module());
+        val objectMapper = ObjectMapper()
+        objectMapper.registerModule(JavaTimeModule())
+        objectMapper.registerModule(Jdk8Module())
+        objectMapper.registerModule(KotlinModule())
 
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
         return objectMapper;
     }
