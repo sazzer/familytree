@@ -9,15 +9,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebArgumentResolver
+import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
+import org.springframework.web.method.support.ModelAndViewContainer
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
 
 /**
  * Unit test for the Client Credentials Web Argument Resolver
  */
-class ClientCredentialsWebArgumentResolverTest : EasyMockSupport() {
+class ClientCredentialsArgumentResolverTest : EasyMockSupport() {
     /** The resolver to test */
-    private val resolver = ClientCredentialsWebArgumentResolver()
+    private val resolver = ClientCredentialsArgumentResolver()
 
     /** The method to work with */
     @Mock
@@ -27,22 +29,41 @@ class ClientCredentialsWebArgumentResolverTest : EasyMockSupport() {
     @Mock
     private lateinit var request: NativeWebRequest
 
+    /** The Model and View Container */
+    @Mock
+    private lateinit var mavContainer: ModelAndViewContainer
+
+    /** The binder factory */
+    @Mock
+    private lateinit var binderFactory: WebDataBinderFactory
+
     /** Rule to set up mocks with */
     @Rule
     @JvmField
     val easyMockRule = EasyMockRule(this)
 
     /**
-     * Test when the argument is not a ClientCredentials
+     * Test if we support when the argument is not a ClientCredentials
      */
     @Test
-    fun testWrongArgument() {
+    fun testSupportsWrongArgument() {
         EasyMock.expect(method.parameterType)
-            .andReturn(String::class.java)
+                .andReturn(String::class.java)
         replayAll()
 
-        val resolved = resolver.resolveArgument(method, request)
-        Assert.assertEquals(WebArgumentResolver.UNRESOLVED, resolved)
+        Assert.assertFalse(resolver.supportsParameter(method))
+    }
+
+    /**
+     * Test if we support when the argument is a ClientCredentials
+     */
+    @Test
+    fun testSupportsCorrectArgument() {
+        EasyMock.expect(method.parameterType)
+                .andReturn(ClientCredentials::class.java)
+        replayAll()
+
+        Assert.assertTrue(resolver.supportsParameter(method))
     }
 
     /**
@@ -56,8 +77,8 @@ class ClientCredentialsWebArgumentResolverTest : EasyMockSupport() {
                 .andReturn(null)
         replayAll()
 
-        val resolved = resolver.resolveArgument(method, request)
-        Assert.assertEquals(WebArgumentResolver.UNRESOLVED, resolved)
+        val resolved = resolver.resolveArgument(method, mavContainer, request, binderFactory)
+        Assert.assertNull(resolved)
     }
 
     /**
@@ -71,8 +92,8 @@ class ClientCredentialsWebArgumentResolverTest : EasyMockSupport() {
                 .andReturn("OtherScheme")
         replayAll()
 
-        val resolved = resolver.resolveArgument(method, request)
-        Assert.assertEquals(WebArgumentResolver.UNRESOLVED, resolved)
+        val resolved = resolver.resolveArgument(method, mavContainer, request, binderFactory)
+        Assert.assertNull(resolved)
     }
 
     /**
@@ -86,7 +107,7 @@ class ClientCredentialsWebArgumentResolverTest : EasyMockSupport() {
                 .andReturn("Basic YWJjZDoxMjM0") // abcd:1234
         replayAll()
 
-        val resolved = resolver.resolveArgument(method, request)
+        val resolved = resolver.resolveArgument(method, mavContainer, request, binderFactory)
         Assert.assertEquals(ClientCredentials("abcd", "1234"), resolved)
     }
 }

@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.*
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+import uk.co.grahamcox.familytree.webapp.oauth2.ClientCredentialsArgumentResolver
 
 /**
  * The configuration to use for the Spring MVC Configuration
@@ -36,5 +38,13 @@ open class WebMvcContext : WebMvcConfigurerAdapter() {
 
         // Then our custom ones
         converters.add(MappingJackson2HttpMessageConverter(objectMapper))
+    }
+
+    /**
+     * Add any custom Argument Resolvers to the webapp
+     * @param argumentResolvers The list of argument resolvers to augment
+     */
+    override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
+        argumentResolvers.add(ClientCredentialsArgumentResolver())
     }
 }

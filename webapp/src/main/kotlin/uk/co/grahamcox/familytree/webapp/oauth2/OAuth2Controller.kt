@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*
+import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
 
 /**
  * Response indicating that an error occurred
@@ -85,7 +86,8 @@ class OAuth2Controller {
      */
     @RequestMapping(value = "/token", method = arrayOf(RequestMethod.POST))
     @ResponseBody
-    fun tokenHandler(@RequestParam(value = "grant_type", required = false) grantType: String?) =
+    fun tokenHandler(@RequestParam(value = "grant_type", required = false) grantType: String?,
+                     clientCredentials: ClientCredentials?) =
         when (grantType) {
             "authorization_code" -> AccessTokenResponse(
                 accessToken = "abc123",
@@ -94,9 +96,16 @@ class OAuth2Controller {
                 accessToken = "abc123",
                 expiresIn = 3600,
                 refreshToken = "zxy098")
-            "client_credentials" -> AccessTokenResponse(
-                accessToken = "abcdef",
-                expiresIn = 3600)
+            "client_credentials" -> if (clientCredentials == null) {
+                AccessTokenResponse(
+                        accessToken = "fedcba",
+                        expiresIn = 3600)
+            } else {
+                AccessTokenResponse(
+                        accessToken = "abcdef",
+                        refreshToken = clientCredentials.clientId + "/" + clientCredentials.clientSecret,
+                        expiresIn = 3600)
+            }
             "refresh_token" -> AccessTokenResponse(
                 accessToken = "zxy098",
                 expiresIn = 3600)
