@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
+import kotlin.collections.*
 
 /**
  * Response indicating that an error occurred
@@ -63,6 +64,12 @@ open class OAuth2Exception(val errorCode: String, message: String? = null) : Exc
 class NoGrantTypeException : OAuth2Exception("invalid_request", "No Grant Type was specified")
 
 /**
+ * Exception indicating that there was a required parameter that was not specified on a request
+ * @param params the parameters that were missing
+ */
+class MissingParametersException(params: List<String>) : OAuth2Exception("invalid_request", "Missing required parameters: ${params}")
+
+/**
  * Exception indicating that there was an unsupported Grant Type specified on a request
  * @param grantType The grant type that was specified
  */
@@ -87,29 +94,78 @@ class OAuth2Controller {
     @RequestMapping(value = "/token", method = arrayOf(RequestMethod.POST))
     @ResponseBody
     fun tokenHandler(@RequestParam(value = "grant_type", required = false) grantType: String?,
-                     clientCredentials: ClientCredentials?) =
+                     clientCredentials: ClientCredentials?,
+                     @RequestParam params: Map<String, String>) =
         when (grantType) {
-            "authorization_code" -> AccessTokenResponse(
-                accessToken = "abc123",
-                expiresIn = 3600)
-            "password" -> AccessTokenResponse(
-                accessToken = "abc123",
-                expiresIn = 3600,
-                refreshToken = "zxy098")
+            "authorization_code" -> {
+                val parameters = extractParameters(mapOf(
+                    "code" to true,
+                    "redirect_uri" to true
+                ), params)
+
+                AccessTokenResponse(
+                    accessToken = "abc123",
+                    expiresIn = 3600)
+            }
+            "password" -> {
+                val parameters = extractParameters(mapOf(
+                    "username" to true,
+                    "password" to true,
+                    "scope" to false
+                ), params)
+
+                AccessTokenResponse(
+                    accessToken = "abc123",
+                    expiresIn = 3600,
+                    refreshToken = "zxy098")
+            }
             "client_credentials" -> if (clientCredentials == null) {
                 AccessTokenResponse(
-                        accessToken = "fedcba",
-                        expiresIn = 3600)
+                    accessToken = "fedcba",
+                    expiresIn = 3600)
             } else {
                 AccessTokenResponse(
-                        accessToken = "abcdef",
-                        refreshToken = clientCredentials.clientId + "/" + clientCredentials.clientSecret,
-                        expiresIn = 3600)
+                    accessToken = "abcdef",
+                    refreshToken = clientCredentials.clientId + "/" + clientCredentials.clientSecret,
+                    expiresIn = 3600)
             }
-            "refresh_token" -> AccessTokenResponse(
-                accessToken = "zxy098",
-                expiresIn = 3600)
+            "refresh_token" -> {
+                val parameters = extractParameters(mapOf(
+                    "refresh_token" to true,
+                    "scope" to false
+                ), params)
+
+                AccessTokenResponse(
+                    accessToken = "zxy098",
+                    expiresIn = 3600)
+            }
             null -> throw NoGrantTypeException()
             else -> throw UnknownGrantTypeException(grantType)
         }
+
+    /**
+     * Wrapper around the received parameters and the desired ones to extract only the ones of interest
+     * @param required Map of the parameters that we want to extract, with the value being True if the parameter is required and False if it is optional
+     * @param params The actual parameters map from the request
+     * @return the resulting parameters that we have extracted
+     */
+    private fun extractParameters(required: Map<String, Boolean>, params: Map<String, String>): Map<String, String> {
+        val result = hashMapOf<String, String>()
+        val missing = arrayListOf<String>()
+
+        required.forEach {
+            val value = params.get(it.key)
+            if (value != null) {
+                result.put(it.key, value)
+            } else if (it.value) {
+                missing.add(it.key)
+            }
+        }
+
+        if (missing.isNotEmpty()) {
+            throw MissingParametersException(missing)
+        }
+
+        return result
+    }
 }
