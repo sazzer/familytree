@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*
 import uk.co.grahamcox.familytree.oauth2.Scopes
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
+import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoader
 import kotlin.collections.*
 
 /**
@@ -84,10 +85,11 @@ class InvalidClientException() : OAuth2Exception("invalid_client")
 
 /**
  * Controller for handling OAuth2 Requests
+ * @property clientDetailsLoader Loader of Client Details
  */
 @Controller
 @RequestMapping("/api/oauth2")
-class OAuth2Controller {
+class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader) {
     /**
      * Handler for a generic OAuth2 Exception
      */
@@ -112,61 +114,68 @@ class OAuth2Controller {
     @ResponseBody
     fun tokenHandler(@RequestParam(value = "grant_type", required = false) grantType: String?,
                      clientCredentials: ClientCredentials?,
-                     @RequestParam params: Map<String, String>) =
-        when (grantType) {
+                     @RequestParam params: Map<String, String>): AccessTokenResponse {
+        val clientDetails = clientCredentials?.let { clientDetailsLoader.load(it) }
+        if (clientCredentials != null && clientDetails == null) {
+            throw InvalidClientException()
+        }
+
+        return when (grantType) {
             "authorization_code" -> {
                 val parameters = extractParameters(mapOf(
-                    "code" to true,
-                    "redirect_uri" to true
+                        "code" to true,
+                        "redirect_uri" to true
                 ), params)
 
                 AccessTokenResponse(
-                    accessToken = "abc123",
-                    expiresIn = 3600)
+                        accessToken = "abc123",
+                        expiresIn = 3600)
             }
             "password" -> {
                 val parameters = extractParameters(mapOf(
-                    "username" to true,
-                    "password" to true,
-                    "scope" to false
+                        "username" to true,
+                        "password" to true,
+                        "scope" to false
                 ), params)
                 val scopes = parameters.get("scope")?.let { Scopes(it) }
 
                 AccessTokenResponse(
-                    accessToken = "abc123",
-                    expiresIn = 3600,
-                    refreshToken = "zxy098",
-                    scope = scopes?.let { it.toString() })
+                        accessToken = "abc123",
+                        expiresIn = 3600,
+                        refreshToken = "zxy098",
+                        scope = scopes?.let { it.toString() })
             }
-            "client_credentials" -> if (clientCredentials == null) {
+            "client_credentials" -> if (clientDetails == null) {
                 throw InvalidClientException()
             } else {
                 val parameters = extractParameters(mapOf(
-                    "scope" to false
+                        "scope" to false
                 ), params)
                 val scopes = parameters.get("scope")?.let { Scopes(it) }
 
                 AccessTokenResponse(
-                    accessToken = "abcdef",
-                    refreshToken = clientCredentials.clientId.id + "/" + clientCredentials.clientSecret,
-                    expiresIn = 3600,
-                    scope = scopes?.let { it.toString() })
+                        accessToken = "abcdef",
+                        refreshToken = clientDetails.name,
+                        expiresIn = 3600,
+                        scope = scopes?.let { it.toString() })
             }
             "refresh_token" -> {
                 val parameters = extractParameters(mapOf(
-                    "refresh_token" to true,
-                    "scope" to false
+                        "refresh_token" to true,
+                        "scope" to false
                 ), params)
                 val scopes = parameters.get("scope")?.let { Scopes(it) }
 
                 AccessTokenResponse(
-                    accessToken = "zxy098",
-                    expiresIn = 3600,
-                    scope = scopes?.let { it.toString() })
+                        accessToken = "zxy098",
+                        expiresIn = 3600,
+                        scope = scopes?.let { it.toString() })
             }
             null -> throw NoGrantTypeException()
             else -> throw UnknownGrantTypeException(grantType)
         }
+
+    }
 
     /**
      * Wrapper around the received parameters and the desired ones to extract only the ones of interest
