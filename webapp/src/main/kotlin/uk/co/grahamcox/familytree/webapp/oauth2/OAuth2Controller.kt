@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*
+import uk.co.grahamcox.familytree.oauth2.Scopes
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
 import kotlin.collections.*
 
@@ -113,31 +114,41 @@ class OAuth2Controller {
                     "password" to true,
                     "scope" to false
                 ), params)
+                val scopes = parameters.get("scope")?.let { Scopes(it) }
 
                 AccessTokenResponse(
                     accessToken = "abc123",
                     expiresIn = 3600,
-                    refreshToken = "zxy098")
+                    refreshToken = "zxy098",
+                    scope = scopes?.let { it.toString() })
             }
             "client_credentials" -> if (clientCredentials == null) {
                 AccessTokenResponse(
                     accessToken = "fedcba",
                     expiresIn = 3600)
             } else {
+                val parameters = extractParameters(mapOf(
+                    "scope" to false
+                ), params)
+                val scopes = parameters.get("scope")?.let { Scopes(it) }
+
                 AccessTokenResponse(
                     accessToken = "abcdef",
                     refreshToken = clientCredentials.clientId + "/" + clientCredentials.clientSecret,
-                    expiresIn = 3600)
+                    expiresIn = 3600,
+                    scope = scopes?.let { it.toString() })
             }
             "refresh_token" -> {
                 val parameters = extractParameters(mapOf(
                     "refresh_token" to true,
                     "scope" to false
                 ), params)
+                val scopes = parameters.get("scope")?.let { Scopes(it) }
 
                 AccessTokenResponse(
                     accessToken = "zxy098",
-                    expiresIn = 3600)
+                    expiresIn = 3600,
+                    scope = scopes?.let { it.toString() })
             }
             null -> throw NoGrantTypeException()
             else -> throw UnknownGrantTypeException(grantType)
