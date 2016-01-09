@@ -13,6 +13,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
+import uk.co.grahamcox.familytree.oauth2.client.ClientId
 
 /**
  * Unit test for the Client Credentials Web Argument Resolver
@@ -108,6 +109,6 @@ class ClientCredentialsArgumentResolverTest : EasyMockSupport() {
         replayAll()
 
         val resolved = resolver.resolveArgument(method, mavContainer, request, binderFactory)
-        Assert.assertEquals(ClientCredentials("abcd", "1234"), resolved)
+        Assert.assertEquals(ClientCredentials(ClientId("abcd"), "1234"), resolved)
     }
 }

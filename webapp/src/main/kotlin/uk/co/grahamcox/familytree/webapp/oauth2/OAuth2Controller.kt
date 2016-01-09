@@ -148,7 +148,7 @@ class OAuth2Controller {
 
                 AccessTokenResponse(
                     accessToken = "abcdef",
-                    refreshToken = clientCredentials.clientId + "/" + clientCredentials.clientSecret,
+                    refreshToken = clientCredentials.clientId.id + "/" + clientCredentials.clientSecret,
                     expiresIn = 3600,
                     scope = scopes?.let { it.toString() })
             }

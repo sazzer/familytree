@@ -6,6 +6,7 @@ import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
+import uk.co.grahamcox.familytree.oauth2.client.ClientId
 import java.util.*
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -58,7 +59,7 @@ class ClientCredentialsArgumentResolver : HandlerMethodArgumentResolver {
         val decoded = java.lang.String(Base64.getDecoder().decode(authorization))
         return if (decoded.contains(":")) {
             val (username, password) = decoded.split(":", 2)
-            ClientCredentials(username, password)
+            ClientCredentials(ClientId(username), password)
         } else {
             throw IllegalArgumentException("Basic Authorization header was malformed")
         }
