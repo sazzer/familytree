@@ -78,15 +78,31 @@ class UnknownGrantTypeException(grantType: String) :
     OAuth2Exception("unsupported_grant_type", "An unsupported grant type was specified: ${grantType}")
 
 /**
+ * Exception indicating that client authentication failed for this request
+ */
+class InvalidClientException() : OAuth2Exception("invalid_client")
+
+/**
  * Controller for handling OAuth2 Requests
  */
 @Controller
 @RequestMapping("/api/oauth2")
 class OAuth2Controller {
+    /**
+     * Handler for a generic OAuth2 Exception
+     */
     @ExceptionHandler(OAuth2Exception::class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleOAuth2Exception(e: OAuth2Exception) = ErrorResponse(e.errorCode, e.message)
+
+    /**
+     * Handler for an Invalid Client Exception
+     */
+    @ExceptionHandler(InvalidClientException::class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleInvalidClientException(e: InvalidClientException) = ErrorResponse(e.errorCode, e.message)
 
     /**
      * Handler for the Token endpoint
@@ -123,9 +139,7 @@ class OAuth2Controller {
                     scope = scopes?.let { it.toString() })
             }
             "client_credentials" -> if (clientCredentials == null) {
-                AccessTokenResponse(
-                    accessToken = "fedcba",
-                    expiresIn = 3600)
+                throw InvalidClientException()
             } else {
                 val parameters = extractParameters(mapOf(
                     "scope" to false

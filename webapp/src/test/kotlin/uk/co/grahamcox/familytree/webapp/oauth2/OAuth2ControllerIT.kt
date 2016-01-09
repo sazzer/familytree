@@ -56,6 +56,18 @@ class OAuth2ControllerIT : SpringTestBase() {
     }
 
     /**
+     * Test requesting an access token with a grant type of client_credentials but none specified
+     */
+    @Test
+    fun testClientCredentialsMissing() {
+        perform(MockMvcRequestBuilders.post("/api/oauth2/token")
+            .param("grant_type", "client_credentials"))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized)
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("error").value("invalid_client"))
+    }
+
+    /**
      * Parameters for the Missing Fields tests
      * This returns an array of arrays, where each of the inner arrays contains a grant type and a map
      * of additional parameters to use
