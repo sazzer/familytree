@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Profile
 import java.time.Clock
 
@@ -14,6 +15,9 @@ import java.time.Clock
  * The root configuration to use for the core webapp Spring context
  */
 @Configuration
+@Import(
+    OAuth2Context::class
+)
 open class CoreContext {
     /**
      * Configure the clock to use

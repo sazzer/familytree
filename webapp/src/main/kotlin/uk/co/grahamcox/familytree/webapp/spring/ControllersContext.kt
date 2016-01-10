@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.co.grahamcox.familytree.oauth2.accessToken.AccessTokenIssuer
+import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoader
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoaderImpl
 import uk.co.grahamcox.familytree.webapp.DebugController
 import uk.co.grahamcox.familytree.webapp.oauth2.OAuth2Controller
@@ -30,7 +31,7 @@ open class ControllersContext {
      */
     @Autowired
     @Bean
-    open fun oauth2Controller(clock: Clock) = OAuth2Controller(ClientDetailsLoaderImpl(),
-            AccessTokenIssuer(clock),
-            clock)
+    open fun oauth2Controller(clientDetailsLoader: ClientDetailsLoader,
+                              accessTokenIssuer: AccessTokenIssuer,
+                              clock: Clock) = OAuth2Controller(clientDetailsLoader, accessTokenIssuer, clock)
 }
