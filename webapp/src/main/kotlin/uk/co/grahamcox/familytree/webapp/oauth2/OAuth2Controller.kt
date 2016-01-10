@@ -6,8 +6,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*
 import uk.co.grahamcox.familytree.oauth2.Scopes
+import uk.co.grahamcox.familytree.oauth2.accessToken.AccessToken
+import uk.co.grahamcox.familytree.oauth2.accessToken.AccessTokenIssuer
 import uk.co.grahamcox.familytree.oauth2.client.ClientCredentials
+import uk.co.grahamcox.familytree.oauth2.client.ClientDetails
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoader
+import java.time.Clock
+import java.time.Duration
 import kotlin.collections.*
 
 /**
@@ -42,7 +47,7 @@ data class AccessTokenResponse(
     val type: String = "Bearer",
 
     @JsonProperty("expires_in")
-    val expiresIn: Int,
+    val expiresIn: Long,
 
     @JsonProperty("refresh_token")
     val refreshToken: String? = null,
@@ -86,10 +91,14 @@ class InvalidClientException() : OAuth2Exception("invalid_client")
 /**
  * Controller for handling OAuth2 Requests
  * @property clientDetailsLoader Loader of Client Details
+ * @property accessTokenIssuer Issuer of Access Tokens
+ * @property clock The clock to use
  */
 @Controller
 @RequestMapping("/api/oauth2")
-class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader) {
+class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
+                       private val accessTokenIssuer: AccessTokenIssuer,
+                       private val clock: Clock) {
     /**
      * Handler for a generic OAuth2 Exception
      */
@@ -145,20 +154,7 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader) {
                         refreshToken = "zxy098",
                         scope = scopes?.let { it.toString() })
             }
-            "client_credentials" -> if (clientDetails == null) {
-                throw InvalidClientException()
-            } else {
-                val parameters = extractParameters(mapOf(
-                        "scope" to false
-                ), params)
-                val scopes = parameters.get("scope")?.let { Scopes(it) }
-
-                AccessTokenResponse(
-                        accessToken = "abcdef",
-                        refreshToken = clientDetails.name,
-                        expiresIn = 3600,
-                        scope = scopes?.let { it.toString() })
-            }
+            "client_credentials" -> clientCredentialsTokenGrant(params, clientDetails)
             "refresh_token" -> {
                 val parameters = extractParameters(mapOf(
                         "refresh_token" to true,
@@ -174,9 +170,41 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader) {
             null -> throw NoGrantTypeException()
             else -> throw UnknownGrantTypeException(grantType)
         }
-
     }
 
+    /**
+     * Perform a Client Credentials Token Grant
+     * @param params The parameters from the request
+     * @param clientDetails The Client Details, if present
+     * @return the access token
+     */
+    fun clientCredentialsTokenGrant(params: Map<String, String>,
+                                    clientDetails: ClientDetails?): AccessTokenResponse {
+        if (clientDetails == null) {
+            throw InvalidClientException()
+        }
+
+        val parameters = extractParameters(mapOf(
+                "scope" to false
+        ), params)
+        val scopes = parameters.get("scope")?.let { Scopes(it) }
+
+        val accessToken = accessTokenIssuer.issueForClient(clientDetails, scopes)
+
+        return buildResponse(accessToken)
+    }
+    /**
+     * Build the Access Token Response for the given Access Token
+     * @param accessToken The access token to produce a response for
+     * @return the response
+     */
+    private fun buildResponse(accessToken: AccessToken) = AccessTokenResponse(
+        accessToken = accessToken.accessTokenId.id,
+        refreshToken = accessToken.refreshTokenId?.id,
+        scope = accessToken.scopes.toString(),
+        expiresIn = Duration.between(clock.instant(), accessToken.expires).seconds,
+        type = "Bearer"
+    )
     /**
      * Wrapper around the received parameters and the desired ones to extract only the ones of interest
      * @param required Map of the parameters that we want to extract, with the value being True if the parameter is required and False if it is optional
