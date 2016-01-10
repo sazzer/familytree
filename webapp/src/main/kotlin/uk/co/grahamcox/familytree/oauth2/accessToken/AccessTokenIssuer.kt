@@ -31,12 +31,13 @@ class AccessTokenIssuer(private val clock: Clock,
 
         val accessToken = Jwts.builder()
             .setIssuer(AccessTokenIssuer::class.qualifiedName)
-            .setSubject(client.id.id)
+            .setSubject(client.owner.id)
             .setAudience(client.id.id)
             .setExpiration(Date.from(expiresAt))
             .setNotBefore(Date.from(issuedAt))
             .setIssuedAt(Date.from(issuedAt))
             .setId(UUID.randomUUID().toString())
+            .claim(Scopes::class.qualifiedName, client.scopes.scopes)
             .signWith(SignatureAlgorithm.HS512, jwtKey)
             .compact()
 

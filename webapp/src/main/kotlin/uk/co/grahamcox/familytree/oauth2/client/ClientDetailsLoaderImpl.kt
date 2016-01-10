@@ -2,8 +2,10 @@ package uk.co.grahamcox.familytree.oauth2.client
 
 import uk.co.grahamcox.familytree.oauth2.Password
 import uk.co.grahamcox.familytree.oauth2.Scopes
+import uk.co.grahamcox.familytree.user.UserId
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
 
 /**
  * Implementation of the Client Details Loader
@@ -20,6 +22,7 @@ class ClientDetailsLoaderImpl : ClientDetailsLoader {
                 name = "Dummy Client",
                 created = ZonedDateTime.of(2016, 1, 10, 21, 29, 0, 0, ZoneId.of("UTC")).toInstant(),
                 updated = ZonedDateTime.of(2016, 1, 10, 21, 29, 0, 0, ZoneId.of("UTC")).toInstant(),
+                owner = UserId(UUID.randomUUID().toString()),
                 scopes = Scopes(arrayOf("a", "b", "c")))
         else -> null
     }
