@@ -80,7 +80,7 @@ class MissingParametersException(params: List<String>) : OAuth2Exception("invali
  * Exception indicating that there was an unsupported Grant Type specified on a request
  * @param grantType The grant type that was specified
  */
-class UnknownGrantTypeException(grantType: String) :
+class UnsupportedGrantTypeException(grantType: String) :
     OAuth2Exception("unsupported_grant_type", "An unsupported grant type was specified: ${grantType}")
 
 /**
@@ -130,46 +130,61 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
         }
 
         return when (grantType) {
-            "authorization_code" -> {
-                val parameters = extractParameters(mapOf(
-                        "code" to true,
-                        "redirect_uri" to true
-                ), params)
-
-                AccessTokenResponse(
-                        accessToken = "abc123",
-                        expiresIn = 3600)
-            }
-            "password" -> {
-                val parameters = extractParameters(mapOf(
-                        "username" to true,
-                        "password" to true,
-                        "scope" to false
-                ), params)
-                val scopes = parameters.get("scope")?.let { Scopes(it) }
-
-                AccessTokenResponse(
-                        accessToken = "abc123",
-                        expiresIn = 3600,
-                        refreshToken = "zxy098",
-                        scope = scopes?.let { it.toString() })
-            }
-            "client_credentials" -> clientCredentialsTokenGrant(params, clientDetails)
-            "refresh_token" -> {
-                val parameters = extractParameters(mapOf(
-                        "refresh_token" to true,
-                        "scope" to false
-                ), params)
-                val scopes = parameters.get("scope")?.let { Scopes(it) }
-
-                AccessTokenResponse(
-                        accessToken = "zxy098",
-                        expiresIn = 3600,
-                        scope = scopes?.let { it.toString() })
-            }
             null -> throw NoGrantTypeException()
-            else -> throw UnknownGrantTypeException(grantType)
+            "authorization_code" -> authorizationCodeTokenGrant(params, clientDetails)
+            "password" -> passwordTokenGrant(params, clientDetails)
+            "client_credentials" -> clientCredentialsTokenGrant(params, clientDetails)
+            "refresh_token" -> refreshTokenGrant(params, clientDetails)
+            else -> throw UnsupportedGrantTypeException(grantType)
         }
+    }
+
+    /**
+     * Perform an Authorization Code Token Grant
+     * @param params The parameters from the request
+     * @param clientDetails The Client Details, if present
+     * @return the access token
+     */
+    fun authorizationCodeTokenGrant(params: Map<String, String>, clientDetails: ClientDetails?): AccessTokenResponse {
+        val parameters = extractParameters(mapOf(
+                "code" to true,
+                "redirect_uri" to true
+        ), params)
+
+        throw UnsupportedGrantTypeException("authorization_code")
+    }
+
+    /**
+     * Perform an Resource Owner Password Credentials Token Grant
+     * @param params The parameters from the request
+     * @param clientDetails The Client Details, if present
+     * @return the access token
+     */
+    fun passwordTokenGrant(params: Map<String, String>, clientDetails: ClientDetails?): AccessTokenResponse {
+        val parameters = extractParameters(mapOf(
+                "username" to true,
+                "password" to true,
+                "scope" to false
+        ), params)
+        val scopes = parameters.get("scope")?.let { Scopes(it) }
+
+        throw UnsupportedGrantTypeException("password")
+    }
+
+    /**
+     * Perform a Refresh Token Grant
+     * @param params The parameters from the request
+     * @param clientDetails The Client Details, if present
+     * @return the access token
+     */
+    fun refreshTokenGrant(params: Map<String, String>, clientDetails: ClientDetails?): AccessTokenResponse {
+        val parameters = extractParameters(mapOf(
+                "refresh_token" to true,
+                "scope" to false
+        ), params)
+        val scopes = parameters.get("scope")?.let { Scopes(it) }
+
+        throw UnsupportedGrantTypeException("refresh_token")
     }
 
     /**
@@ -205,6 +220,7 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
         expiresIn = Duration.between(clock.instant(), accessToken.expires).seconds,
         type = "Bearer"
     )
+
     /**
      * Wrapper around the received parameters and the desired ones to extract only the ones of interest
      * @param required Map of the parameters that we want to extract, with the value being True if the parameter is required and False if it is optional
