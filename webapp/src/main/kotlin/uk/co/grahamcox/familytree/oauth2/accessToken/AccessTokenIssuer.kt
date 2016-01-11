@@ -8,6 +8,7 @@ import uk.co.grahamcox.familytree.oauth2.client.ClientDetails
 import java.time.Clock
 import java.time.Duration
 import java.util.*
+import kotlin.collections.intersect
 
 /**
  * Mechanism to issue access tokens
@@ -28,6 +29,9 @@ class AccessTokenIssuer(private val clock: Clock,
     fun issueForClient(client: ClientDetails, scopes: Scopes?): AccessToken {
         val issuedAt = clock.instant()
         val expiresAt = issuedAt.plus(duration)
+        val clientScopes = client.scopes.scopes
+        val requestedScopes = scopes?.scopes
+        val actualScopes = requestedScopes?.intersect(clientScopes) ?: clientScopes
 
         val accessToken = Jwts.builder()
             .setIssuer(AccessTokenIssuer::class.qualifiedName)
@@ -37,13 +41,15 @@ class AccessTokenIssuer(private val clock: Clock,
             .setNotBefore(Date.from(issuedAt))
             .setIssuedAt(Date.from(issuedAt))
             .setId(UUID.randomUUID().toString())
-            .claim(Scopes::class.qualifiedName, client.scopes.scopes)
+            .claim(Scopes::class.qualifiedName, actualScopes)
             .signWith(SignatureAlgorithm.HS512, jwtKey)
             .compact()
 
         return AccessToken(accessTokenId = AccessTokenId(accessToken),
                 refreshTokenId = null,
-                expires = clock.instant().plus(duration),
-                scopes = client.scopes)
+                client = client.id,
+                issued = issuedAt,
+                expires = expiresAt,
+                scopes = Scopes(actualScopes))
     }
 }

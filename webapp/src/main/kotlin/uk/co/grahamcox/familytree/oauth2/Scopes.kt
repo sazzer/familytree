@@ -31,4 +31,17 @@ class Scopes(scopesIn: Collection<String>) {
      * @return the scopes as a string
      */
     override fun toString(): String = scopes.sorted().joinToString(" ")
+
+    /** {@inheritDoc} */
+    override fun equals(other: Any?): Boolean = when(other) {
+        null -> false
+        is Scopes -> this.scopes == other.scopes
+        else -> false
+    }
+
+    /** {@inheritDoc} */
+    override fun hashCode(): Int{
+        return scopes.hashCode()
+    }
+
 }
