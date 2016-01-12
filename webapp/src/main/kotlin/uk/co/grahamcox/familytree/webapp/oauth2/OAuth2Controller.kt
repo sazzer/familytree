@@ -2,6 +2,7 @@ package uk.co.grahamcox.familytree.webapp.oauth2;
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*
@@ -14,6 +15,7 @@ import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoader
 import java.time.Clock
 import java.time.Duration
 import kotlin.collections.*
+import kotlin.text.isEmpty
 
 /**
  * Response indicating that an error occurred
@@ -53,7 +55,7 @@ data class AccessTokenResponse(
     val refreshToken: String? = null,
 
     @JsonProperty("scope")
-    val scope: String? = null,
+    val scope: String,
 
     @JsonProperty("state")
     val state: String? = null
@@ -89,6 +91,11 @@ class UnsupportedGrantTypeException(grantType: String) :
 class InvalidClientException() : OAuth2Exception("invalid_client")
 
 /**
+ * Exception indicating that scopes requested for this request were not valid
+ */
+class InvalidScopeException() : OAuth2Exception("invalid_scope")
+
+/**
  * Controller for handling OAuth2 Requests
  * @property clientDetailsLoader Loader of Client Details
  * @property accessTokenIssuer Issuer of Access Tokens
@@ -99,6 +106,10 @@ class InvalidClientException() : OAuth2Exception("invalid_client")
 class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
                        private val accessTokenIssuer: AccessTokenIssuer,
                        private val clock: Clock) {
+
+    /** The logger to use */
+    private val LOG = LoggerFactory.getLogger(OAuth2Controller::class.java)
+
     /**
      * Handler for a generic OAuth2 Exception
      */
@@ -129,7 +140,7 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
             throw InvalidClientException()
         }
 
-        return when (grantType) {
+        val accessToken = when (grantType) {
             null -> throw NoGrantTypeException()
             "authorization_code" -> authorizationCodeTokenGrant(params, clientDetails)
             "password" -> passwordTokenGrant(params, clientDetails)
@@ -137,6 +148,11 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
             "refresh_token" -> refreshTokenGrant(params, clientDetails)
             else -> throw UnsupportedGrantTypeException(grantType)
         }
+
+        if (accessToken.scope.isEmpty()) {
+            throw InvalidScopeException()
+        }
+        return accessToken
     }
 
     /**
@@ -234,13 +250,16 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
         required.forEach {
             val value = params.get(it.key)
             if (value != null) {
+                LOG.debug("Found value {} for parameter {}", value, it.key)
                 result.put(it.key, value)
             } else if (it.value) {
+                LOG.debug("Found missing parameter {}", it.key)
                 missing.add(it.key)
             }
         }
 
         if (missing.isNotEmpty()) {
+            LOG.warn("Missing required parameters: {}", missing)
             throw MissingParametersException(missing)
         }
 

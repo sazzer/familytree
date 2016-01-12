@@ -3,6 +3,7 @@ package uk.co.grahamcox.familytree.spring
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import uk.co.grahamcox.familytree.oauth2.accessToken.AccessTokenIssuer
 import uk.co.grahamcox.familytree.oauth2.client.ClientDao
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoaderImpl
@@ -15,7 +16,8 @@ open class OAuth2Context {
      * Bean representing the OAuth2 Client DAO
      * @return the Client DAO
      */
-    @Bean
+    @Bean(name = arrayOf("clientDao"))
+    @Profile("!test")
     open fun clientDao() = ClientMongoDao()
 
     /**

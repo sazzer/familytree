@@ -8,7 +8,6 @@ import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.springframework.core.MethodParameter
-import org.springframework.web.bind.support.WebArgumentResolver
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer

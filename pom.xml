@@ -99,6 +99,16 @@
                 <version>0.6.0</version>
             </dependency>
             <dependency>
+                <groupId>it.ozimov</groupId>
+                <artifactId>java7-hamcrest-matchers</artifactId>
+                <version>0.3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>it.ozimov</groupId>
+                <artifactId>java8-hamcrest-matchers</artifactId>
+                <version>0.3.0</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>3.1.0</version>
@@ -196,6 +206,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>it.ozimov</groupId>
+            <artifactId>java7-hamcrest-matchers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>it.ozimov</groupId>
+            <artifactId>java8-hamcrest-matchers</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

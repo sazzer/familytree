@@ -1,5 +1,6 @@
 package uk.co.grahamcox.familytree.webapp.oauth2
 
+import org.slf4j.LoggerFactory
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -18,6 +19,9 @@ import kotlin.text.toLowerCase
  * Argument Resolver to decode the Client Credentials from the Request, if possible
  */
 class ClientCredentialsArgumentResolver : HandlerMethodArgumentResolver {
+    /** The logger to use */
+    private val LOG = LoggerFactory.getLogger(ClientCredentialsArgumentResolver::class.java)
+
     /** Prefix for Basic Authorization headers */
     private val BASIC_AUTHORIZATION_PREFIX = "basic "
 
@@ -35,9 +39,11 @@ class ClientCredentialsArgumentResolver : HandlerMethodArgumentResolver {
                                  binderFactory: WebDataBinderFactory): Any? {
         val authorization = webRequest.getHeader("Authorization") ?: ""
 
+        LOG.debug("Authorization header: {}", authorization)
         return if (authorization.toLowerCase().startsWith(BASIC_AUTHORIZATION_PREFIX)) {
             parseAuthorization(authorization.substring(BASIC_AUTHORIZATION_PREFIX.length))
         } else {
+            LOG.debug("Authorization header not present or not Basic Auth")
             null
         }
     }
@@ -59,8 +65,10 @@ class ClientCredentialsArgumentResolver : HandlerMethodArgumentResolver {
         val decoded = java.lang.String(Base64.getDecoder().decode(authorization))
         return if (decoded.contains(":")) {
             val (username, password) = decoded.split(":", 2)
+            LOG.debug("Decoded client credentials for client {}", username)
             ClientCredentials(ClientId(username), password)
         } else {
+            LOG.error("Basic Authorization header was malformed: {}", authorization)
             throw IllegalArgumentException("Basic Authorization header was malformed")
         }
     }
