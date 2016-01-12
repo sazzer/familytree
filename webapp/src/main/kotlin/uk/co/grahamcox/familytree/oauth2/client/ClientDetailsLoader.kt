@@ -1,5 +1,10 @@
 package uk.co.grahamcox.familytree.oauth2.client
 
+import org.slf4j.LoggerFactory
+
+/** The logger to use */
+private val LOG = LoggerFactory.getLogger(ClientDetailsLoader::class.java)
+
 /**
  * Mechanism to load client details
  */
@@ -21,6 +26,7 @@ interface ClientDetailsLoader {
                 if (it.secret.equals(credentials.clientSecret)) {
                     it
                 } else {
+                    LOG.warn("Loaded client details for client {} but password didn't match", credentials.clientId)
                     null
                 }
             }

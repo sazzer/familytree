@@ -1,5 +1,6 @@
 package uk.co.grahamcox.familytree.oauth2.accessToken
 
+import org.slf4j.LoggerFactory
 import uk.co.grahamcox.familytree.oauth2.Scopes
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetails
 import java.time.Clock
@@ -14,6 +15,9 @@ import kotlin.collections.intersect
  */
 class AccessTokenIssuer(private val clock: Clock,
                         private val duration: Duration = Duration.ofHours(1)) {
+
+    /** The logger to use */
+    private val LOG = LoggerFactory.getLogger(AccessTokenIssuer::class.java)
 
     /**
      * Issue an Access Token for a specific client
@@ -31,11 +35,15 @@ class AccessTokenIssuer(private val clock: Clock,
         val requestedScopes = scopes?.scopes
         val actualScopes = requestedScopes?.intersect(clientScopes) ?: clientScopes
 
-        return AccessToken(accessTokenId = AccessTokenId(accessTokenId),
+        val accessToken = AccessToken(accessTokenId = AccessTokenId(accessTokenId),
                 client = client.id,
                 user = user,
                 issued = issuedAt,
                 expires = expiresAt,
                 scopes = Scopes(actualScopes))
+
+        LOG.debug("Issuing Access Token {}", accessToken)
+
+        return accessToken
     }
 }
