@@ -7,6 +7,7 @@ import uk.co.grahamcox.familytree.oauth2.accessToken.AccessTokenIssuer
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoader
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoaderImpl
 import uk.co.grahamcox.familytree.webapp.DebugController
+import uk.co.grahamcox.familytree.webapp.oauth2.AccessTokenEncoder
 import uk.co.grahamcox.familytree.webapp.oauth2.OAuth2Controller
 import java.time.Clock
 
@@ -33,5 +34,5 @@ open class ControllersContext {
     @Bean
     open fun oauth2Controller(clientDetailsLoader: ClientDetailsLoader,
                               accessTokenIssuer: AccessTokenIssuer,
-                              clock: Clock) = OAuth2Controller(clientDetailsLoader, accessTokenIssuer, clock)
+                              clock: Clock) = OAuth2Controller(clientDetailsLoader, accessTokenIssuer, AccessTokenEncoder(), clock)
 }

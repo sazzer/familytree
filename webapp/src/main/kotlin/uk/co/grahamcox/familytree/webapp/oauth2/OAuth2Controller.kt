@@ -99,12 +99,14 @@ class InvalidScopeException() : OAuth2Exception("invalid_scope")
  * Controller for handling OAuth2 Requests
  * @property clientDetailsLoader Loader of Client Details
  * @property accessTokenIssuer Issuer of Access Tokens
+ * @property accessTokenEncoder The means to encode Access Tokens
  * @property clock The clock to use
  */
 @Controller
 @RequestMapping("/api/oauth2")
 class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
                        private val accessTokenIssuer: AccessTokenIssuer,
+                       private val accessTokenEncoder: AccessTokenEncoder,
                        private val clock: Clock) {
 
     /** The logger to use */
@@ -230,7 +232,7 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
      * @return the response
      */
     private fun buildResponse(accessToken: AccessToken) = AccessTokenResponse(
-        accessToken = accessToken.accessTokenId.id,
+        accessToken = accessTokenEncoder.encodeAccessToken(accessToken),
         scope = accessToken.scopes.toString(),
         expiresIn = Duration.between(clock.instant(), accessToken.expires).seconds,
         type = "Bearer"
