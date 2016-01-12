@@ -231,7 +231,6 @@ class OAuth2Controller(private val clientDetailsLoader: ClientDetailsLoader,
      */
     private fun buildResponse(accessToken: AccessToken) = AccessTokenResponse(
         accessToken = accessToken.accessTokenId.id,
-        refreshToken = accessToken.refreshTokenId?.id,
         scope = accessToken.scopes.toString(),
         expiresIn = Duration.between(clock.instant(), accessToken.expires).seconds,
         type = "Bearer"

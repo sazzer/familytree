@@ -49,8 +49,8 @@ class AccessTokenIssuerTest {
         Assert.assertEquals(TIME, accessToken.issued)
         Assert.assertEquals(TIME.plus(ACCESS_TOKEN_DURATION), accessToken.expires)
         Assert.assertEquals(ClientId("graham"), accessToken.client)
+        Assert.assertEquals(client.owner, accessToken.user)
         Assert.assertEquals(Scopes(arrayOf("a", "b", "c")), accessToken.scopes)
-        Assert.assertNull(accessToken.refreshTokenId)
     }
 
     /**
@@ -70,8 +70,8 @@ class AccessTokenIssuerTest {
         Assert.assertEquals(TIME, accessToken.issued)
         Assert.assertEquals(TIME.plus(ACCESS_TOKEN_DURATION), accessToken.expires)
         Assert.assertEquals(ClientId("graham"), accessToken.client)
+        Assert.assertEquals(client.owner, accessToken.user)
         Assert.assertEquals(Scopes(arrayOf("a", "b")), accessToken.scopes)
-        Assert.assertNull(accessToken.refreshTokenId)
     }
 
     /**
@@ -92,7 +92,7 @@ class AccessTokenIssuerTest {
         Assert.assertEquals(TIME, accessToken.issued)
         Assert.assertEquals(TIME.plus(ACCESS_TOKEN_DURATION), accessToken.expires)
         Assert.assertEquals(ClientId("graham"), accessToken.client)
+        Assert.assertEquals(client.owner, accessToken.user)
         Assert.assertEquals(Scopes(arrayOf("b", "c")), accessToken.scopes)
-        Assert.assertNull(accessToken.refreshTokenId)
     }
 }
