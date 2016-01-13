@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import uk.co.grahamcox.familytree.webapp.oauth2.OAuth2AuthenticationProvider
 
 /**
  * Spring context to set up Spring Security
@@ -21,6 +22,8 @@ open class SecurityContext : WebSecurityConfigurerAdapter() {
      */
     @Autowired
     open fun configureGlobal(auth: AuthenticationManagerBuilder) {
+        auth.authenticationProvider(OAuth2AuthenticationProvider())
+        
         auth.inMemoryAuthentication()
             .withUser("graham")
                 .password("password")
