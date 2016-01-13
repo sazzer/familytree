@@ -45,6 +45,7 @@
         <version.maven>3.2.1</version.maven>
         <version.slf4j>1.7.13</version.slf4j>
         <version.spring>4.2.4.RELEASE</version.spring>
+        <version.springSecurity>4.0.3.RELEASE</version.springSecurity>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -163,6 +164,16 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
                 <version>${version.spring}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${version.springSecurity}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${version.springSecurity}</version>
             </dependency>
             <dependency>
                 <groupId>pl.pragmatists</groupId>
