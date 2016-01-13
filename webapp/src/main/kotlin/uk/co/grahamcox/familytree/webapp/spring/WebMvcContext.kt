@@ -17,7 +17,7 @@ import uk.co.grahamcox.familytree.webapp.oauth2.ClientCredentialsArgumentResolve
  */
 @Configuration
 @EnableWebMvc
-@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = false, prePostEnabled = true)
 open class WebMvcContext : WebMvcConfigurerAdapter() {
     /** The logger to use */
     private val LOG = LoggerFactory.getLogger(WebMvcContext::class.java)
