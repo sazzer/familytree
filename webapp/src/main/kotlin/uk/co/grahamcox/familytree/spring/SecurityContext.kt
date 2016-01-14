@@ -50,5 +50,6 @@ open class SecurityContext : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http.httpBasic()
             .authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        http.exceptionHandling().accessDeniedHandler(OAuth2AccessDeniedHandler())
     }
 }
