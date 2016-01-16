@@ -1,6 +1,5 @@
 package uk.co.grahamcox.familytree.webapp
 
-import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
@@ -24,6 +23,5 @@ open class DebugController(private val clock: Clock) {
      */
     @RequestMapping("/whoami")
     @ResponseBody
-    @Secured("ROLE_USER")
     open fun whoami() = SecurityContextHolder.getContext()
 }

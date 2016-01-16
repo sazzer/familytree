@@ -2,7 +2,10 @@ package uk.co.grahamcox.familytree.webapp.oauth2
 
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import kotlin.collections.listOf
 
 /**
  * Spring Security Authentication Provider for handling OAuth2 Authentication
@@ -18,7 +21,18 @@ class OAuth2AuthenticationProvider : AuthenticationProvider {
      */
     override fun authenticate(authentication: Authentication): Authentication? {
         LOG.debug("Attempting to authenticate {}", authentication)
-        return null
+        val result = if (supports(authentication.javaClass)) {
+            UsernamePasswordAuthenticationToken(
+                    "wrongUser",
+                    "wrongPassword",
+                    listOf())
+        } else {
+            null
+        }
+
+        result?.details = authentication.details
+
+        return result
     }
 
     /**
@@ -28,6 +42,6 @@ class OAuth2AuthenticationProvider : AuthenticationProvider {
      */
     override fun supports(authentication: Class<*>): Boolean {
         LOG.debug("Checking if we can support authentication of type {}", authentication)
-        return true
+        return authentication == AccessTokenAuthenticationToken::class.java
     }
 }

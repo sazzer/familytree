@@ -53,6 +53,7 @@ open class SecurityContext : WebSecurityConfigurerAdapter() {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.exceptionHandling().accessDeniedHandler(OAuth2AccessDeniedHandler())
         http.exceptionHandling().authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        http.anonymous().disable()
 
         http.apply(AccessTokenAuthenticationConfigurer())
     }
