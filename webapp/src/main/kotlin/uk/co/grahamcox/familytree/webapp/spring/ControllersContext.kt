@@ -34,5 +34,7 @@ open class ControllersContext {
     @Bean
     open fun oauth2Controller(clientDetailsLoader: ClientDetailsLoader,
                               accessTokenIssuer: AccessTokenIssuer,
-                              clock: Clock) = OAuth2Controller(clientDetailsLoader, accessTokenIssuer, AccessTokenEncoder(), clock)
+                              accessTokenEncoder: AccessTokenEncoder,
+                              clock: Clock) =
+            OAuth2Controller(clientDetailsLoader, accessTokenIssuer, accessTokenEncoder, clock)
 }

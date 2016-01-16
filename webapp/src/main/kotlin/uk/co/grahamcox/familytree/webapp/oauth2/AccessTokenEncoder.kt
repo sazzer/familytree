@@ -27,7 +27,7 @@ class ExpiredAccessTokenException(message: String) : InvalidAccessTokenException
  * Mechanism to encode an access token with
  * @property jwtKey The key to sign the JWT with
  */
-class AccessTokenEncoder(private val jwtKey: SecretKey = MacProvider.generateKey()) {
+class AccessTokenEncoder(private val jwtKey: SecretKey) {
     /** The logger to use */
     private val LOG = LoggerFactory.getLogger(AccessTokenEncoder::class.java)
 
