@@ -1,4 +1,4 @@
-package uk.co.grahamcox.familytree.spring
+package uk.co.grahamcox.familytree.webapp.oauth2
 
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException

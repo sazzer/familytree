@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import uk.co.grahamcox.familytree.webapp.oauth2.AccessTokenAuthenticationConfigurer
+import uk.co.grahamcox.familytree.webapp.oauth2.OAuth2AccessDeniedHandler
 import uk.co.grahamcox.familytree.webapp.oauth2.OAuth2AuthenticationProvider
 
 /**
