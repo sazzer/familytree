@@ -9,7 +9,6 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.WebAuthenticationDetails
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import org.springframework.web.filter.OncePerRequestFilter
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
@@ -36,7 +35,7 @@ class AccessTokenAuthenticationFilter(private val authenticationManager: Authent
 
     /** The mechanism to decode access tokens */
     @Autowired
-    private lateinit var accessTokenEncoder: AccessTokenEncoder
+    lateinit var accessTokenEncoder: AccessTokenEncoder
 
     /**
      * Actually attempt to authenticate the request

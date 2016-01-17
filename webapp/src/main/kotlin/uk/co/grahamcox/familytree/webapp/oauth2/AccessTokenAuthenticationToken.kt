@@ -24,4 +24,6 @@ class AccessTokenAuthenticationToken(val credentials: AccessToken,
      * @return the principal
      */
     override fun getPrincipal(): Any? = principal
+
+
 }

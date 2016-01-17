@@ -6,7 +6,7 @@ import uk.co.grahamcox.familytree.oauth2.accessToken.AccessToken
  * Exception thrown when parsing an Access Token fails
  * @param message The error message
  */
-open class InvalidAccessTokenException(message: String) : Exception(message)
+open class InvalidAccessTokenException(message: String) : RuntimeException(message)
 
 /**
  * Exception thrown to indicate that parsing an access token failed because it had expired
