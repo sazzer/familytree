@@ -1,8 +1,10 @@
 package uk.co.grahamcox.familytree.webapp.oauth2
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
@@ -31,6 +33,11 @@ class AccessTokenAuthenticationFilter(private val authenticationManager: Authent
 
     /** The Authentication Entry Point to use on authentication failure */
     private val authenticationEntryPoint = HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+
+    /** The mechanism to decode access tokens */
+    @Autowired
+    private lateinit var accessTokenEncoder: AccessTokenEncoder
+
     /**
      * Actually attempt to authenticate the request
      * @param request The request
@@ -49,15 +56,21 @@ class AccessTokenAuthenticationFilter(private val authenticationManager: Authent
             val encodedAccessToken = authorizationHeader.substring(AUTHORIZATION_HEADER_PREFIX.length)
             LOG.debug("Received Access Token {}", encodedAccessToken)
 
-            val authToken = AccessTokenAuthenticationToken()
             try {
+                val authToken = try {
+                    val accessToken = accessTokenEncoder.decodeAccessToken(encodedAccessToken)
+                    AccessTokenAuthenticationToken(accessToken)
+                } catch (e: InvalidAccessTokenException) {
+                    throw BadCredentialsException("Failed to decode Access Token", e);
+                }
+
                 authToken.details = WebAuthenticationDetails(request)
                 val authResult = authenticationManager.authenticate(authToken)
 
                 SecurityContextHolder.getContext().authentication = authResult
                 filterChain.doFilter(request, response)
             } catch (e: AuthenticationException) {
-                LOG.debug("Authentication failed for {}", authToken)
+                LOG.debug("Authentication failed for {}", encodedAccessToken)
                 SecurityContextHolder.clearContext()
                 authenticationEntryPoint.commence(request, response, e)
             }

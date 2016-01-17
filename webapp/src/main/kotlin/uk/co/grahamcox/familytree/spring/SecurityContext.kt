@@ -55,6 +55,7 @@ open class SecurityContext : WebSecurityConfigurerAdapter() {
         http.exceptionHandling().accessDeniedHandler(OAuth2AccessDeniedHandler())
         http.exceptionHandling().authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
         http.anonymous().disable()
+        http.csrf().disable()
 
         http.apply(AccessTokenAuthenticationConfigurer())
     }
