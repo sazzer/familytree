@@ -22,9 +22,9 @@ import java.util.*
  * Unit tests for the Access Token Encoder
  */
 @RunWith(JUnitParamsRunner::class)
-class AccessTokenEncoderTest {
+class JwtAccessTokenEncoderTest {
     /** Logger */
-    private val LOG = LoggerFactory.getLogger(AccessTokenEncoderTest::class.java)
+    private val LOG = LoggerFactory.getLogger(JwtAccessTokenEncoderTest::class.java)
 
     /** The clock to use */
     private val clock = Clock.systemUTC()
@@ -33,7 +33,7 @@ class AccessTokenEncoderTest {
     private val jwtKey = MacProvider.generateKey()
 
     /** The encoder to test */
-    private val encoder = AccessTokenEncoder(jwtKey)
+    private val encoder = JwtAccessTokenEncoder(jwtKey)
 
     /**
      * Test encoding an access token and then decoding it again

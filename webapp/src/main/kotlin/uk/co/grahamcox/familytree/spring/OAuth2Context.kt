@@ -9,7 +9,7 @@ import uk.co.grahamcox.familytree.oauth2.accessToken.AccessTokenIssuer
 import uk.co.grahamcox.familytree.oauth2.client.ClientDao
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoaderImpl
 import uk.co.grahamcox.familytree.oauth2.client.mongo.ClientMongoDao
-import uk.co.grahamcox.familytree.webapp.oauth2.AccessTokenEncoder
+import uk.co.grahamcox.familytree.webapp.oauth2.JwtAccessTokenEncoder
 import java.time.Clock
 import javax.crypto.SecretKey
 
@@ -55,5 +55,5 @@ open class OAuth2Context {
      */
     @Autowired
     @Bean
-    open fun accessTokenEncoder(jwtKey: SecretKey) = AccessTokenEncoder(jwtKey)
+    open fun accessTokenEncoder(jwtKey: SecretKey) = JwtAccessTokenEncoder(jwtKey)
 }
