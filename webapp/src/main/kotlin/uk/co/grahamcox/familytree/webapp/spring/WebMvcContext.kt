@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.*
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
@@ -16,6 +17,7 @@ import uk.co.grahamcox.familytree.webapp.oauth2.ClientCredentialsArgumentResolve
  */
 @Configuration
 @EnableWebMvc
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = false, prePostEnabled = true)
 open class WebMvcContext : WebMvcConfigurerAdapter() {
     /** The logger to use */
     private val LOG = LoggerFactory.getLogger(WebMvcContext::class.java)

@@ -16,6 +16,7 @@ import java.time.Clock
  */
 @Configuration
 @Import(
+    SecurityContext::class,
     OAuth2Context::class
 )
 open class CoreContext {
