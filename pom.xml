@@ -20,6 +20,7 @@
     </prerequisites>
     <modules>
         <module>webapp</module>
+        <module>verification</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/sazzer/familytree.git</connection>
@@ -41,6 +42,7 @@
         <!-- Dependency Versions -->
         <version.jackson>2.6.4</version.jackson>
         <version.jdk>1.8</version.jdk>
+        <version.jetty>9.3.7.v20160115</version.jetty>
         <version.kotlin>1.0.0-beta-4584</version.kotlin>
         <version.maven>3.2.1</version.maven>
         <version.slf4j>1.7.13</version.slf4j>
@@ -379,9 +381,14 @@
                     <version>2.6</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-maven2-plugin</artifactId>
+                    <version>1.4.18</version>
+                </plugin>
+                <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.3.2.v20150730</version>
+                    <version>${version.jetty}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
