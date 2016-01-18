@@ -1,0 +1,13 @@
+[
+  {
+    "id": "graham",
+    "secret": "1234",
+    "name": "Dummy Client",
+    "created": "2016-01-18T13:07:47Z",
+    "updated": "2016-01-18T13:07:47Z",
+    "owner": "graham",
+    "scopes": [
+      "a", "b", "c"
+    ]
+  }
+]

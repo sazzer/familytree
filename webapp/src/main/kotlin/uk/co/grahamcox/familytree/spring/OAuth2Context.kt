@@ -5,23 +5,28 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.core.io.ResourceLoader
 import uk.co.grahamcox.familytree.oauth2.accessToken.AccessTokenIssuer
 import uk.co.grahamcox.familytree.oauth2.client.ClientDao
 import uk.co.grahamcox.familytree.oauth2.client.ClientDetailsLoaderImpl
-import uk.co.grahamcox.familytree.oauth2.client.mongo.ClientMongoDao
+import uk.co.grahamcox.familytree.oauth2.client.ClientJsonDao
 import uk.co.grahamcox.familytree.webapp.oauth2.JwtAccessTokenEncoder
 import java.time.Clock
 import javax.crypto.SecretKey
 
 @Configuration
 open class OAuth2Context {
+    /** The resource loader to use */
+    @Autowired
+    private lateinit var resourceLoader: ResourceLoader
+
     /**
      * Bean representing the OAuth2 Client DAO
      * @return the Client DAO
      */
     @Bean(name = arrayOf("clientDao"))
     @Profile("!test")
-    open fun clientDao() = ClientMongoDao()
+    open fun clientDao() = ClientJsonDao(resourceLoader.getResource("classpath:/uk/co/grahamcox/familytree/oauth2/clients.json"))
 
     /**
      * Mechanism to load Client Details

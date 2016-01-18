@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Profile
 import uk.co.grahamcox.familytree.oauth2.client.ClientDao
-import uk.co.grahamcox.familytree.oauth2.client.mongo.ClientMongoDao
 import uk.co.grahamcox.familytree.spring.CoreContext
 import uk.co.grahamcox.familytree.webapp.spring.ServletContext
 import java.time.Clock
