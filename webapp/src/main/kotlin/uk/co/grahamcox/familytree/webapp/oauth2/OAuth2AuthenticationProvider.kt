@@ -2,10 +2,10 @@ package uk.co.grahamcox.familytree.webapp.oauth2
 
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import kotlin.collections.listOf
+import org.springframework.security.core.userdetails.User
+import kotlin.collections.map
 
 /**
  * Spring Security Authentication Provider for handling OAuth2 Authentication
@@ -21,16 +21,30 @@ class OAuth2AuthenticationProvider : AuthenticationProvider {
      */
     override fun authenticate(authentication: Authentication): Authentication? {
         LOG.debug("Attempting to authenticate {}", authentication)
-        val result = if (supports(authentication.javaClass)) {
-            UsernamePasswordAuthenticationToken(
-                    "wrongUser",
-                    "wrongPassword",
-                    listOf())
-        } else {
-            null
+        val result = when(authentication) {
+            is AccessTokenAuthenticationToken -> {
+                val accessToken = authentication.credentials
+                val scopes = accessToken.scopes
+                val authorities = scopes.scopes.map { it -> "ROLE_" + it }
+                    .map { it -> SimpleGrantedAuthority(it)}
+
+                val user = User(
+                        accessToken.user.id,
+                        accessToken.accessTokenId.id,
+                        true, // enabled
+                        true, // accountNonExpired
+                        true, // credentialsNonExpired
+                        true, // accountNonLocked
+                        authorities
+                )
+
+                AccessTokenAuthenticationToken(accessToken, user)
+            }
+            else -> null
         }
 
         result?.details = authentication.details
+        result?.isAuthenticated = true
 
         return result
     }
