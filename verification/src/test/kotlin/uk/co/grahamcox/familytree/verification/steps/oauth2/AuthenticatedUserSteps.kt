@@ -2,10 +2,10 @@ package uk.co.grahamcox.familytree.verification.steps.oauth2
 
 import cucumber.api.java.en.Then
 import cucumber.api.java.en.When
+import org.hamcrest.collection.IsMapContaining
 import org.junit.Assert
 import org.springframework.beans.factory.annotation.Autowired
 import uk.co.grahamcox.familytree.verification.facades.oauth2.AuthenticationFacade
-import kotlin.collections.get
 
 /**
  * Step definitions for checking the authentication state
@@ -32,6 +32,6 @@ class AuthenticatedUserSteps {
     @Then("^I am not authenticated$")
     fun assertNotAuthenticated() {
         Assert.assertNotNull(authentication)
-        Assert.assertEquals(false, authentication?.get("authenticated"))
+        Assert.assertThat(authentication, IsMapContaining.hasEntry<Any, Any>("authenticated", false))
     }
 }
