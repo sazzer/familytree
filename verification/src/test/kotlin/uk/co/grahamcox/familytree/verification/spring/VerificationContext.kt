@@ -4,6 +4,7 @@ import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.web.client.RestTemplate
 import uk.co.grahamcox.familytree.verification.facades.Requester
 
@@ -11,6 +12,9 @@ import uk.co.grahamcox.familytree.verification.facades.Requester
  * Spring configuration for the verification tests
  */
 @Configuration
+@Import(
+        AuthenticationContext::class
+)
 open class VerificationContext {
     /**
      * Build the Rest Template to use
