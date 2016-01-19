@@ -65,7 +65,9 @@
                 </executions>
                 <configuration>
                     <configuration>
-                        <properties></properties>
+                        <properties>
+                            <cargo.servlet.port>${port.http}</cargo.servlet.port>
+                        </properties>
                     </configuration>
                     <container>
                         <containerId>jetty9x</containerId>
@@ -74,7 +76,6 @@
                         </zipUrlInstaller>
                         <timeout>300000</timeout>
                     </container>
-                    <deployer></deployer>
                     <deployables>
                         <deployable>
                             <artifactId>familytree-webapp</artifactId>
@@ -86,6 +87,25 @@
                         </deployable>
                     </deployables>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>port-allocator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>allocate-ports</goal>
+                        </goals>
+                        <configuration>
+                            <ports>
+                                <port>
+                                    <name>port.http</name>
+                                </port>
+                            </ports>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
