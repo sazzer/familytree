@@ -22,6 +22,6 @@ class CucumberIT {
 @CucumberOptions(tags = arrayOf("@wip", "~@ignore"),
         format = arrayOf("pretty"),
         strict = false)
-class CucumberWIP {
+class CucumberWipIT {
 
 }

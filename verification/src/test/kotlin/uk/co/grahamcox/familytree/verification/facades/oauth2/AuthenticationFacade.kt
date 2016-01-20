@@ -5,6 +5,7 @@ import uk.co.grahamcox.familytree.verification.facades.Requester
 
 /**
  * Facade layer for getting details of our authentication
+ * @param requester The means to make a request to the server
  */
 class AuthenticationFacade(private val requester: Requester) {
 

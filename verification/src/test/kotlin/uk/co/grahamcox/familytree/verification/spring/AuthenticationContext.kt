@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.co.grahamcox.familytree.verification.facades.Requester
 import uk.co.grahamcox.familytree.verification.facades.oauth2.AuthenticationFacade
+import uk.co.grahamcox.familytree.verification.facades.oauth2.OAuth2Facade
 
 /**
  * Spring context for building everything to do with authentication
@@ -19,4 +20,13 @@ open class AuthenticationContext {
     @Autowired
     @Bean
     open fun authenticationFacade(requester: Requester) = AuthenticationFacade(requester)
+
+    /**
+     * Build the OAuth2 Facade
+     * @param requester The requester to use
+     * @return the OAuth2 facade
+     */
+    @Autowired
+    @Bean
+    open fun oauth2Facade(requester: Requester) = OAuth2Facade(requester)
 }

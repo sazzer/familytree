@@ -5,8 +5,24 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
+import org.springframework.http.converter.FormHttpMessageConverter
+import org.springframework.http.converter.StringHttpMessageConverter
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import uk.co.grahamcox.familytree.verification.facades.Requester
+import kotlin.collections.listOf
+
+/**
+ * Response Error Handler that claims there's never an error
+ */
+class NoopResponseErrorHandler : DefaultResponseErrorHandler() {
+    /**
+     * Check the status code and claim that no error occurred
+     */
+    override fun hasError(statusCode: HttpStatus): Boolean = false
+}
 
 /**
  * Spring configuration for the verification tests
@@ -21,7 +37,17 @@ open class VerificationContext {
      * @return the rest template
      */
     @Bean
-    open fun restTemplate() = RestTemplate()
+    open fun restTemplate(): RestTemplate {
+        val restTemplate = RestTemplate()
+        restTemplate.errorHandler = NoopResponseErrorHandler()
+
+        restTemplate.messageConverters = listOf(
+                FormHttpMessageConverter(),
+                StringHttpMessageConverter(),
+                MappingJackson2HttpMessageConverter()
+        )
+        return restTemplate
+    }
 
     /**
      * Build the Requester to use
